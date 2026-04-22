@@ -2,11 +2,13 @@ FROM php:8.4-cli
 
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip libzip-dev libxml2-dev \
+    git curl zip unzip \
+    libzip-dev libxml2-dev \
     libonig-dev libcurl4-openssl-dev libssl-dev \
+    libicu-dev \
     nodejs npm \
     && docker-php-ext-install pdo pdo_mysql mbstring xml zip curl bcmath intl \
-    && apt-get clean
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
