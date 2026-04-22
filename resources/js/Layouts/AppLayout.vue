@@ -4,7 +4,7 @@
     <nav class="border-b border-[var(--border)] sticky top-0 z-50 backdrop-blur-sm bg-[rgba(14,14,15,0.9)]">
       <div class="max-w-6xl mx-auto px-6 h-14 flex items-center justify-between">
         <Link href="/" class="font-['Playfair_Display'] text-[var(--gold)] text-xl tracking-wide no-underline">
-          Hajus<span class="text-[var(--text)]">rakendused</span>
+          <span class="text-[var(--text)]">Silendused</span>
         </Link>
 
         <div class="flex items-center gap-1 text-sm">
@@ -53,10 +53,6 @@
       <slot />
     </main>
 
-    <!-- Footer -->
-    <footer class="border-t border-[var(--border)] py-6 text-center text-[var(--muted)] text-xs">
-      Hajusrakendused © {{ new Date().getFullYear() }} — Laravel + Vue + Inertia.js
-    </footer>
   </div>
 </template>
 

@@ -27,20 +27,20 @@
           <div class="grid grid-cols-2 gap-3">
             <div>
               <label class="label">Eesnimi *</label>
-              <input v-model="form.first_name" class="input" placeholder="Mari" />
+              <input v-model="form.first_name" class="input" placeholder="Silver" />
             </div>
             <div>
               <label class="label">Perenimi *</label>
-              <input v-model="form.last_name" class="input" placeholder="Maasikas" />
+              <input v-model="form.last_name" class="input" placeholder="Reinart" />
             </div>
           </div>
           <div>
             <label class="label">E-post *</label>
-            <input v-model="form.email" type="email" class="input" placeholder="mari@email.ee" />
+            <input v-model="form.email" type="email" class="input" placeholder="test@example.com" />
           </div>
           <div>
             <label class="label">Telefon</label>
-            <input v-model="form.phone" class="input" placeholder="+372 5xxx xxxx" />
+            <input v-model="form.phone" class="input" placeholder="5xxx xxxx" />
           </div>
 
           <div v-if="error" class="text-[var(--danger)] text-sm p-3 rounded border border-[var(--danger)] bg-[rgba(192,57,43,0.08)]">
