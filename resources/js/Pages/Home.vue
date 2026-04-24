@@ -26,10 +26,10 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 import { Link } from '@inertiajs/vue3'
 
 const features = [
-  { num: 1, href: '/weather', icon: '🌤', label: 'Ilmateenus', desc: 'OpenWeatherMap API + cache + linnaotsing' },
-  { num: 2, href: '/map',     icon: '🗺', label: 'Kaardirakendus', desc: 'Leaflet + markerite CRUD + koordinaadid' },
-  { num: 3, href: '/blog',    icon: '📝', label: 'Blogi',    desc: 'Auth + postitused + kommentaaride haldus' },
-  { num: 4, href: '/shop',    icon: '🛍', label: 'E-pood',   desc: 'Ostukorv + Stripe Checkout + tellimused' },
-  { num: 5, href: '/books',   icon: '📚', label: 'Raamatud API', desc: 'JSON API + filter + sort + limit + cache' },
+  { num: 1, href: '/weather', icon: '🌤', label: 'Ilmateenus', desc: '' },
+  { num: 2, href: '/map',     icon: '🗺', label: 'Kaardirakendus', desc: '' },
+  { num: 3, href: '/blog',    icon: '📝', label: 'Blogi',    desc: '' },
+  { num: 4, href: '/shop',    icon: '🛍', label: 'E-pood',   desc: '' },
+  { num: 5, href: '/books',   icon: '📚', label: 'Raamatud API', desc: '' },
 ]
 </script>
