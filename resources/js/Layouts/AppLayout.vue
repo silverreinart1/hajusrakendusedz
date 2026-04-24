@@ -26,7 +26,7 @@
             </span>
           </Link>
 
-          <template v-if="$page.props.auth.user">
+          <template v-if="$page.props.auth?.user">
             <span class="text-[var(--muted)] text-xs">{{ $page.props.auth.user.name }}</span>
             <Link href="/logout" method="post" as="button" class="btn btn-ghost text-xs ml-1">Logi välja</Link>
           </template>
@@ -39,11 +39,11 @@
     </nav>
 
     <!-- Flash -->
-    <div v-if="$page.props.flash.success || $page.props.flash.error" class="max-w-6xl mx-auto w-full px-6 pt-4">
-      <div v-if="$page.props.flash.success" class="p-3 rounded border border-[var(--success)] text-[var(--success)] text-sm bg-[rgba(39,174,96,0.08)]">
+    <div v-if="$page.props.flash?.success || $page.props.flash?.error" class="max-w-6xl mx-auto w-full px-6 pt-4">
+      <div v-if="$page.props.flash?.success" class="p-3 rounded border border-[var(--success)] text-[var(--success)] text-sm bg-[rgba(39,174,96,0.08)]">
         {{ $page.props.flash.success }}
       </div>
-      <div v-if="$page.props.flash.error" class="p-3 rounded border border-[var(--danger)] text-[var(--danger)] text-sm bg-[rgba(192,57,43,0.08)]">
+      <div v-if="$page.props.flash?.error" class="p-3 rounded border border-[var(--danger)] text-[var(--danger)] text-sm bg-[rgba(192,57,43,0.08)]">
         {{ $page.props.flash.error }}
       </div>
     </div>
@@ -58,7 +58,6 @@
 
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3'
-import { computed } from 'vue'
 
 const page = usePage()
 
