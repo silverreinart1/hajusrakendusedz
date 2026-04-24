@@ -7,18 +7,17 @@
       <div class="card space-y-4">
         <div>
           <label class="label">E-post</label>
-          <input v-model="form.email" type="email" class="input" placeholder="sinu@email.ee" />
+          <input v-model="form.email" type="email" class="input" placeholder="sinu@email.ee" @keydown.enter="submit" />
+          <span v-if="form.errors.email" class="text-[var(--danger)] text-xs mt-1 block">{{ form.errors.email }}</span>
         </div>
         <div>
           <label class="label">Parool</label>
-          <input v-model="form.password" type="password" class="input" placeholder="••••••••" />
+          <input v-model="form.password" type="password" class="input" placeholder="••••••••" @keydown.enter="submit" />
         </div>
 
-        <div v-if="$page.props.errors?.email" class="text-[var(--danger)] text-sm">
-          {{ $page.props.errors.email }}
-        </div>
-
-        <button @click="submit" class="btn btn-gold w-full justify-center">Logi sisse</button>
+        <button @click="submit" :disabled="form.processing" class="btn btn-gold w-full justify-center">
+          {{ form.processing ? 'Palun oota...' : 'Logi sisse' }}
+        </button>
 
         <p class="text-center text-sm text-[var(--muted)]">
           Pole kontot?
@@ -30,10 +29,20 @@
 </template>
 
 <script setup>
-import { reactive } from 'vue'
-import { Link, router } from '@inertiajs/vue3'
+import { Link, useForm } from '@inertiajs/vue3'
 import AppLayout from '@/Layouts/AppLayout.vue'
 
-const form = reactive({ email: '', password: '', remember: false })
-const submit = () => router.post('/login', form)
+const form = useForm({
+  email: '',
+  password: '',
+  remember: false
+})
+
+function submit() {
+  form.post('/login', {
+    onError: () => {
+      form.reset('password')
+    }
+  })
+}
 </script>
