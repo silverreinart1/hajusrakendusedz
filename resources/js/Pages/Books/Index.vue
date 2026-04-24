@@ -26,12 +26,9 @@
       <div v-if="source === 'friend'" class="card mb-6">
         <label class="label mb-1">Sõbra API URL</label>
         <div class="flex gap-2">
-          <input
-            v-model="friendApiInput"
-            class="input text-sm flex-1 font-mono"
+          <input v-model="friendApiInput" class="input text-sm flex-1 font-mono"
             placeholder="https://sobra-app.up.railway.app/api/books"
-            @keydown.enter="fetchFriendApi"
-          />
+            @keydown.enter="fetchFriendApi" />
           <button @click="fetchFriendApi" class="btn btn-gold text-sm" :disabled="loading">
             {{ loading ? '...' : 'Laadi' }}
           </button>
@@ -45,11 +42,13 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label class="label">Pealkiri *</label>
-            <input v-model="newBook.title" class="input" placeholder="Raamatu pealkiri" />
+            <input v-model="newBook.title" class="input" placeholder="Raamatu pealkiri"
+              @blur="autoFetchCover" />
           </div>
           <div>
             <label class="label">Autor *</label>
-            <input v-model="newBook.author" class="input" placeholder="Autori nimi" />
+            <input v-model="newBook.author" class="input" placeholder="Autori nimi"
+              @blur="autoFetchCover" />
           </div>
           <div>
             <label class="label">Ilmumisaasta *</label>
@@ -61,11 +60,25 @@
           </div>
           <div>
             <label class="label">ISBN</label>
-            <input v-model="newBook.isbn" class="input" placeholder="978-..." />
+            <input v-model="newBook.isbn" class="input" placeholder="978-..."
+              @blur="autoFetchCover" />
           </div>
           <div>
-            <label class="label">Kaanepilt (URL)</label>
-            <input v-model="newBook.image" class="input" placeholder="https://..." />
+            <label class="label">
+              Kaanepilt
+              <span v-if="coverLoading" class="text-[var(--muted)] font-normal"> · otsib...</span>
+              <span v-else-if="newBook.image" class="text-green-500 font-normal"> · ✓ leitud</span>
+            </label>
+            <div class="flex gap-2">
+              <input v-model="newBook.image" class="input text-sm flex-1" placeholder="https://... (täidetakse automaatselt)" />
+              <button @click="autoFetchCover" type="button" class="btn btn-ghost text-xs px-2" title="Otsi kaanepilti">
+                🔍
+              </button>
+            </div>
+            <div v-if="newBook.image" class="mt-2">
+              <img :src="newBook.image" class="h-20 rounded object-cover border border-[var(--border)]"
+                @error="newBook.image = ''" />
+            </div>
           </div>
           <div class="sm:col-span-2">
             <label class="label">Kirjeldus *</label>
@@ -81,7 +94,7 @@
         <p v-if="addError" class="text-[var(--danger)] text-sm mt-2">{{ addError }}</p>
       </div>
 
-      <!-- Filters (own only) -->
+      <!-- Filters -->
       <div v-if="source === 'own'" class="card mb-6">
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div>
@@ -120,14 +133,22 @@
         <span class="text-[var(--gold)]">GET</span> {{ activeApiUrl }}
       </div>
 
-      <!-- Books grid -->
+      <!-- Fix existing books button -->
+      <div v-if="source === 'own' && books.some(b => !b.image)" class="mb-4 flex items-center gap-3">
+        <p class="text-xs text-[var(--muted)]">{{ books.filter(b => !b.image).length }} raamatul puudub kaanepilt.</p>
+        <button @click="fixAllCovers" class="btn btn-ghost text-xs" :disabled="fixingCovers">
+          {{ fixingCovers ? 'Otsin...' : '🔍 Otsi kõigile kaanepildid' }}
+        </button>
+      </div>
+
+      <!-- State messages -->
       <div v-if="loading" class="text-center py-12 text-[var(--muted)]">Laadin...</div>
       <div v-else-if="source === 'friend' && !friendLoaded" class="text-center py-12 text-[var(--muted)]">
         Sisesta sõbra API URL ja vajuta <span class="text-[var(--gold)]">Laadi</span>.
       </div>
-      <div v-else-if="books.length === 0 && friendLoaded" class="text-center py-12 text-[var(--muted)]">Raamatuid ei leitud.</div>
-      <div v-else-if="books.length === 0 && source === 'own'" class="text-center py-12 text-[var(--muted)]">Raamatuid ei leitud.</div>
+      <div v-else-if="books.length === 0" class="text-center py-12 text-[var(--muted)]">Raamatuid ei leitud.</div>
 
+      <!-- Books grid -->
       <div v-else class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         <div v-for="book in books" :key="book.id"
           class="card hover:border-[var(--gold-dim)] transition-colors relative group">
@@ -135,7 +156,7 @@
           <div class="aspect-[3/2] rounded overflow-hidden mb-3 bg-[var(--border)] flex items-center justify-center">
             <img v-if="book.image" :src="book.image" :alt="book.title"
               class="w-full h-full object-cover"
-              @error="e => e.target.style.display = 'none'" />
+              @error="e => e.target.parentElement.innerHTML = '<span class=\'text-4xl opacity-20\'>📖</span>'" />
             <span v-else class="text-4xl opacity-20">📖</span>
           </div>
 
@@ -166,16 +187,18 @@ import { ref, reactive, computed } from 'vue'
 import AppLayout from '@/Layouts/AppLayout.vue'
 import axios from 'axios'
 
-const books       = ref([])
-const meta        = ref({})
-const loading     = ref(false)
-const source      = ref('own')
+const books        = ref([])
+const meta         = ref({})
+const loading      = ref(false)
+const source       = ref('own')
 const friendApiInput = ref('')
 const friendLoaded   = ref(false)
 const friendError    = ref(null)
-const showForm    = ref(false)
-const addLoading  = ref(false)
-const addError    = ref(null)
+const showForm     = ref(false)
+const addLoading   = ref(false)
+const addError     = ref(null)
+const coverLoading = ref(false)
+const fixingCovers = ref(false)
 
 const filters = reactive({ search: '', genre: '', sort: 'id', order: 'asc', limit: 20 })
 const newBook = reactive({
@@ -193,6 +216,58 @@ const activeApiUrl = computed(() => {
   params.set('limit', filters.limit)
   return `/api/books?${params.toString()}`
 })
+
+// Fetch cover from Google Books API
+async function fetchCover(title, author, isbn) {
+  try {
+    let query = ''
+    if (isbn) {
+      query = `isbn:${isbn.replace(/[^0-9X]/gi, '')}`
+    } else if (title) {
+      query = `intitle:${encodeURIComponent(title)}`
+      if (author) query += `+inauthor:${encodeURIComponent(author)}`
+    }
+    if (!query) return null
+
+    const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=1`)
+    const data = await res.json()
+    const info = data.items?.[0]?.volumeInfo?.imageLinks
+    if (!info) return null
+
+    // Prefer large cover, fall back to thumbnail — force https and zoom for better quality
+    const raw = info.extraLarge || info.large || info.medium || info.thumbnail || ''
+    return raw.replace('http://', 'https://').replace('&edge=curl', '') + '&fife=w400'
+  } catch {
+    return null
+  }
+}
+
+async function autoFetchCover() {
+  if (newBook.image) return // don't overwrite manually entered URL
+  if (!newBook.title && !newBook.isbn) return
+  coverLoading.value = true
+  const url = await fetchCover(newBook.title, newBook.author, newBook.isbn)
+  if (url) newBook.image = url
+  coverLoading.value = false
+}
+
+// Fix all existing books that have no image
+async function fixAllCovers() {
+  fixingCovers.value = true
+  const missing = books.value.filter(b => !b.image)
+  for (const book of missing) {
+    const url = await fetchCover(book.title, book.author, book.isbn)
+    if (url) {
+      try {
+        await axios.put(`/api/books/${book.id}`, { image: url })
+        book.image = url // update reactively without full reload
+      } catch (e) {
+        console.error(`Failed to update book ${book.id}`, e)
+      }
+    }
+  }
+  fixingCovers.value = false
+}
 
 function setSource(s) {
   source.value = s
@@ -234,7 +309,7 @@ async function fetchFriendApi() {
     books.value = Array.isArray(data) ? data : (data.data ?? [])
     meta.value  = { count: books.value.length }
     friendLoaded.value = true
-  } catch (e) {
+  } catch {
     friendError.value = 'API ei vasta või CORS blokeerib päringu. Kontrolli URL-i.'
     books.value = []
   } finally {
