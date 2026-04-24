@@ -27,7 +27,7 @@
         <label class="label mb-1">Sõbra API URL</label>
         <div class="flex gap-2">
           <input v-model="friendApiInput" class="input text-sm flex-1 font-mono"
-            placeholder="https://sobra-app.up.railway.app/api/books"
+            placeholder=""
             @keydown.enter="fetchFriendApi" />
           <button @click="fetchFriendApi" class="btn btn-gold text-sm" :disabled="loading">
             {{ loading ? '...' : 'Laadi' }}
