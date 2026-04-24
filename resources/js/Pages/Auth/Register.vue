@@ -41,3 +41,23 @@
     </div>
   </AppLayout>
 </template>
+
+<script setup>
+import { Link, useForm } from '@inertiajs/vue3'
+import AppLayout from '@/Layouts/AppLayout.vue'
+
+const form = useForm({
+  name: '',
+  email: '',
+  password: '',
+  password_confirmation: ''
+})
+
+function submit() {
+  form.post('/register', {
+    onError: () => {
+      form.reset('password', 'password_confirmation')
+    }
+  })
+}
+</script>
